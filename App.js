@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 
+
 const Context =React.createContext("hello")
 const Stack = createNativeStackNavigator();
 
@@ -99,10 +100,10 @@ const AboutPage = ({ navigation, route }) => {
     <Context.Consumer>
         {date =><Text style={{fontSize:25,color:'darkblue'}}>{date}</Text>}
         </Context.Consumer>
-    <View style={{flex:7}}><Image style={{flex: 1, height:2000, width:1500}}
+    <View style={{flex:5}}><Image style={{flex: 2, height:600, width:400}}
           resizeMode="center"source={{uri:'https://is5-ssl.mzstatic.com/image/thumb/Purple116/v4/93/d0/78/93d078ad-8339-6677-e1f1-82c64787636f/AppIcon-0-0-1x_U007emarketing-0-0-0-6-0-0-sRGB-0-0-0-GLES2_U002c0-512MB-85-220-0-0.png/1200x630wa.png'}}/></View>
     <View style={{flex:2,justifyContent:'center',alignItems:'center'}}>
-    <Text style={{fontSize:25,color:'darkblue'}}>
+    <Text style={{fontSize:18,color:'darkblue'}}>
     This is a personal budgeting app that helps you to keep track of your expenses and set up reminders for upcoming
     future payments and planned expenses. You can set a weekly/monthly limit of how much you are allowing yourself to
     spend and the app will let you know how much available credits you have for yourself.
@@ -139,34 +140,41 @@ const Bill = (props) => {
     <TextInput
           style={styles.textinput}
           placeholder="rent"
+          keyboardType={'numeric'}
           onChangeText={text => {setRent(text)}}
       />
     <TextInput
           style={styles.textinput}
           placeholder="transport"
+          keyboardType={'numeric'}
           onChangeText={text => {setTransport(text)}}
       />
     <TextInput
           style={styles.textinput}
           placeholder="shopping"
+          keyboardType={'numeric'}
           onChangeText={text => {setShopping(text)}}
       />
     <TextInput
           style={styles.textinput}
           placeholder="dining"
+          keyboardType={'numeric'}
           onChangeText={text => {setDining(text)}}
       />
     <TextInput
           style={styles.textinput}
           placeholder="insurance"
+          keyboardType={'numeric'}
           onChangeText={text => {setInsurance(text)}}
       />
     <TextInput
           style={styles.textinput}
           placeholder="others"
+          keyboardType={'numeric'}
           onChangeText={text => {setOthers(text)}}
       />
       <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
+
     <Button
           color='darkblue' title='Calculate Cost'
           onPress = {() =>
@@ -195,36 +203,15 @@ const Bill = (props) => {
 
       const [category, setCategory] = useState("");
       const [cost, setCost] = useState("");
-      const [total, setTotal] = useState(0);
       const [limit, setLimit] = useState("");
-      const incrTotal = (k) => {
-        setTotal(total+k)
-      }
+      const [plan, setPlan] = useState([]);
+
 
       useEffect(() => {getData()}, [])
 
-      const getDataUGLY = () => {
-        AsyncStorage.getItem('@limit')
-          .then((jsonValue) => {
-            let data = null
-            if (jsonValue!=null) {
-              data = JSON.parse(jsonValue)
-              setLimit(data)
-              console.log('just set info, name, and email')
-            } else {
-              console.log('just read a null value from Storage')
-              setCategory("")
-              setCost("")
-              setTotal(0)
-              setLimit("")
-            }
-          })
-          .catch((error)=> {console.log("error in getData")})
-      }
-
       const getData = async () => {
         try {
-          const jsonValue = await AsyncStorage.getItem('@limit')
+          const jsonValue = await AsyncStorage.getItem('@plan')
           let data = null
           if (jsonValue!=null) {
             data = JSON.parse(jsonValue)
@@ -232,9 +219,9 @@ const Bill = (props) => {
             console.log('just set info, name and email')
           } else {
             console.log('just read a null value from Storage')
+            setPlan([])
             setCategory("")
             setCost("")
-            setTotal(0)
             setLimit("")
           }
         } catch(e) {
@@ -246,7 +233,7 @@ const Bill = (props) => {
       const storeData = async (value) => {
         try {
           const jsonValue = JSON.stringify(value)
-          await AsyncStorage.setItem('@limit', jsonValue)
+          await AsyncStorage.setItem('@plan', jsonValue)
           console.log('just stored' +jsonValue)
         } catch(e) {
           console.log("error in storeData")
@@ -312,7 +299,7 @@ const Bill = (props) => {
             <TextInput
               style={{fontSize:25}}
               placeholder="Limit"
-              onChangeText={text => {setCategory(text);}}
+              onChangeText={text => {setLimit(text);}}
               value = {limit}
             />
           </View>
@@ -321,18 +308,18 @@ const Bill = (props) => {
               title={"Save"}
               color="lightgreen"
               onPress = {() => {
-                incrTotal(parseFloat(cost))
-                const newLimit =
-                  limit.concat(
+                const newPlan =
+                  plan.concat(
                     {'category':category,
                      'cost':cost,
-                     'total':total,
-                     'completed':new Date()
+                     'limit':limit,
+                     'completed': new Date()
                   })
-                  setLimit(newLimit)
-                  storeData(newLimit)
+                  setPlan(newPlan)
+                  storeData(newPlan)
                   setCategory("")
                   setCost("")
+                  setLimit("")
 
               }}
               />
@@ -342,14 +329,14 @@ const Bill = (props) => {
               color="lightblue"
               onPress = {() => {
                 clearAll()
+                setPlan([])
                 setLimit("")
-                setTotal(0)
               }}
             />
           </View>
           <View style={{flexDirection:'row', justifyContent:'center', backgroundColor:"yellow"}}>
             <Text style={{fontSize:20, color:'darkblue',backgroundColor:'yellow'}}>
-            Here is your payment plans for this month:
+            Here is your payment plans for this month
             </Text>
           </View>
 
@@ -358,6 +345,7 @@ const Bill = (props) => {
             renderItem={renderPlan}
             keyExtraction={item => item.name}
           />
+
 
         </View>
       );
@@ -369,7 +357,7 @@ const Bill = (props) => {
       flex: 1,
       flexDirection:'column',
       backgroundColor: 'pink',
-      alignItems: 'space-around',
+      alignItems: 'center',
       justifyContent: 'space-around',
 
     },
@@ -390,6 +378,10 @@ const Bill = (props) => {
       justifyContent: 'space-around',
       flex:1,
       alignItems:'center'
-    }
+    },
+    plan:{
+    flexDirection:'row',
+    justifyContent:'space-between',
+    },
   });
 export default MyStack;
