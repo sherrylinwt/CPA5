@@ -8,6 +8,9 @@ This is a personal budgeting app that helps you to keep track of your expenses a
 
 developer notes: React Native, async-storage
 
+screenshot:
+
+![Screenshot_1639349005](https://user-images.githubusercontent.com/49283208/145745506-ae70c1f1-c050-440f-98a4-69bd5cfec515.png)
 
 
 
